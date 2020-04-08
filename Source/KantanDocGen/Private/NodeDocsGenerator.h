@@ -44,7 +44,7 @@ public:
 
 public:
 	/** Callable only from game thread */
-	bool GT_Init(FString const& InDocsTitle, FString const& InOutputDir, UClass* BlueprintContextClass = AActor::StaticClass());
+	bool GT_Init(FString const& InDocsTitle, FString const& InOutputDir, UClass* BlueprintContextClass = AActor::StaticClass(), TArray<FName> InModuleNames = TArray<FName>());
 	UK2Node* GT_InitializeForSpawner(UBlueprintNodeSpawner* Spawner, UObject* SourceObject, FNodeProcessingState& OutState);
 	bool GT_Finalize(FString OutputPath);
 	/**/
@@ -58,6 +58,9 @@ protected:
 	void CleanUp();
 	TSharedPtr< FXmlFile > InitIndexXml(FString const& IndexTitle);
 	TSharedPtr< FXmlFile > InitClassDocXml(UClass* Class);
+	bool UpdateClassDocWithPath(FXmlFile* DocFile, UClass* Class);
+	bool UpdateClassDocWithDescription(FXmlFile* DocFile, UClass* Class);
+	bool UpdateClassDocWithHierarchy(FXmlFile* DocFile, UClass* Class);
 	bool UpdateIndexDocWithClass(FXmlFile* DocFile, UClass* Class);
 	bool UpdateClassDocWithNode(FXmlFile* DocFile, UEdGraphNode* Node);
 	bool SaveIndexXml(FString const& OutDir);
@@ -75,6 +78,7 @@ protected:
 	TSharedPtr< class SGraphPanel > GraphPanel;
 
 	FString DocsTitle;
+	TArray<FName> ModuleNames;
 	TSharedPtr< FXmlFile > IndexXml;
 	TMap< TWeakObjectPtr< UClass >, TSharedPtr< FXmlFile > > ClassDocsMap;
 
