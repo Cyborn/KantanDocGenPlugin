@@ -4,15 +4,17 @@
 
 // Copyright (C) 2016-2017 Cameron Angus. All Rights Reserved.
 
-#include "NativeModuleEnumerator.h"
+#include "NativeEnumStructEnumerator.h"
 #include "KantanDocGenLog.h"
 #include "UObject/UnrealType.h"
 #include "UObject/Package.h"
 #include "UObject/UObjectHash.h"
-#include "Misc/PackageName.h"
+#include "BlueprintActionDatabase.h"
+#include "K2Node_SwitchEnum.h"
+#include "K2Node_BreakStruct.h"
+#include "BlueprintFieldNodeSpawner.h"
 
-
-FNativeModuleEnumerator::FNativeModuleEnumerator(
+FNativeEnumStructEnumerator::FNativeEnumStructEnumerator(
 	FName const& InModuleName
 )
 {
@@ -21,7 +23,7 @@ FNativeModuleEnumerator::FNativeModuleEnumerator(
 	Prepass(InModuleName);
 }
 
-void FNativeModuleEnumerator::Prepass(FName const& ModuleName)
+void FNativeEnumStructEnumerator::Prepass(FName const& ModuleName)
 {
 	// For native package, all classes are already loaded so it's no problem to fully enumerate during prepass.
 	// That way we have more info for progress estimation.
@@ -29,13 +31,14 @@ void FNativeModuleEnumerator::Prepass(FName const& ModuleName)
 	// Attempt to find the package
 	auto PkgName = TEXT("/Script/") + ModuleName.ToString();
 
+	// Attempt to find the package
 	auto Package = FindPackage(nullptr, *PkgName);
-	if(Package == nullptr)
+	if (Package == nullptr)
 	{
 		// If it is not in memory, try to load it.
 		Package = LoadPackage(nullptr, *PkgName, LOAD_None);
 	}
-	if(Package == nullptr)
+	if (Package == nullptr)
 	{
 		UE_LOG(LogKantanDocGen, Warning, TEXT("Failed to find specified package '%s', skipping."), *PkgName);
 		return;
@@ -44,40 +47,31 @@ void FNativeModuleEnumerator::Prepass(FName const& ModuleName)
 	// Make sure it's fully loaded (probably unnecessary since only native packages here, but no harm)
 	Package->FullyLoad();
 
-	// @TODO: Work out why the below enumeration is called twice for every class in the package (it's called on the exact same uclass instance)
-	TSet< UObject* > Processed;
+	// Cache list of spawners for this object
+	auto& BPActionMap = FBlueprintActionDatabase::Get().GetAllActions();
 
-	// Functor to invoke on every object found in the package
-	TFunction< void(UObject*) > ObjectEnumFtr = [&](UObject* Obj)
+	for (TPair<FObjectKey, TArray<UBlueprintNodeSpawner*>> Pair : BPActionMap)
 	{
-		// The BP action database appears to be keyed either on native UClass objects, or, in the
-		// case of blueprints, on the Blueprint object itself, as opposed to the generated class.
-
-		UObject* ObjectToProcess = nullptr;
-
-		// Native class?
-		if(auto Class = Cast< UClass >(Obj))
+		for (UBlueprintNodeSpawner* Spawner : Pair.Value)
 		{
-			if(Class->HasAllClassFlags(CLASS_Native) && !Class->HasAnyFlags(RF_ClassDefaultObject))
+			if (Spawner->NodeClass == UK2Node_SwitchEnum::StaticClass() || Spawner->NodeClass == UK2Node_BreakStruct::StaticClass())
 			{
-				ObjectToProcess = Class;
+				if (UBlueprintFieldNodeSpawner* FieldSpawner = Cast<UBlueprintFieldNodeSpawner>(Spawner))
+				{
+					FString PackageName;
+					FPackageName::TryConvertFilenameToLongPackageName(*FieldSpawner->GetField()->GetPathName(), PackageName);
+					if (PackageName.StartsWith(PkgName))
+					{
+						// This will contain many of the same object if we don't add unique.
+						ObjectList.AddUnique(TWeakObjectPtr<UObject>(Pair.Key.ResolveObjectPtr()));
+					}
+				}
 			}
 		}
-
-		if(ObjectToProcess && !Processed.Contains(ObjectToProcess))
-		{
-			// Store this class
-			ObjectList.Add(ObjectToProcess);
-
-			Processed.Add(ObjectToProcess);
-		}
-	};
-
-	// Enumerate all objects in the package
-	ForEachObjectWithOuter(Package, ObjectEnumFtr, true /* Include nested */);
+	}
 }
 
-UObject* FNativeModuleEnumerator::GetNext()
+UObject* FNativeEnumStructEnumerator::GetNext()
 {
 	UObject* CurObject = CurIndex < ObjectList.Num() ? ObjectList[CurIndex++].Get() : nullptr;
 	if (CurObject)
@@ -89,12 +83,12 @@ UObject* FNativeModuleEnumerator::GetNext()
 	return CurObject;
 }
 
-float FNativeModuleEnumerator::EstimateProgress() const
+float FNativeEnumStructEnumerator::EstimateProgress() const
 {
 	return (float)CurIndex / (ObjectList.Num() - 1);
 }
 
-int32 FNativeModuleEnumerator::EstimatedSize() const
+int32 FNativeEnumStructEnumerator::EstimatedSize() const
 {
 	return ObjectList.Num();
 }

@@ -15,6 +15,7 @@
 #include "Enumeration/NativeModuleEnumerator.h"
 #include "Enumeration/ContentPathEnumerator.h"
 #include "Enumeration/CompositeEnumerator.h"
+#include "Enumeration/NativeEnumStructEnumerator.h"
 #include "Widgets/Notifications/SNotificationList.h"
 #include "Framework/Notifications/NotificationManager.h"
 #include "ThreadingHelpers.h"
@@ -101,6 +102,7 @@ void FDocGenTaskProcessor::ProcessTask(TSharedPtr< FDocGenTask > InTask)
 	{
 		// @TODO: Specific class enumerator
 		Current->Enumerators.Enqueue(MakeShareable< FCompositeEnumerator< FNativeModuleEnumerator > >(new FCompositeEnumerator< FNativeModuleEnumerator >(Current->Task->Settings.NativeModules)));
+		Current->Enumerators.Enqueue(MakeShareable< FCompositeEnumerator< FNativeEnumStructEnumerator > >(new FCompositeEnumerator< FNativeEnumStructEnumerator >(Current->Task->Settings.NativeModules)));
 
 		TArray< FName > ContentPackagePaths;
 		for (auto const& Path : Current->Task->Settings.ContentPaths)

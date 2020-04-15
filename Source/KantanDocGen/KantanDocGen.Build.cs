@@ -34,7 +34,8 @@ public class KantanDocGen : ModuleRules
 				"XmlParser",
 				"UMG",
 				"Projects",
-                "ImageWriteQueue"
+                "ImageWriteQueue",
+                "AnimGraph"
             }
         );
 	}

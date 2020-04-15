@@ -12,12 +12,22 @@
 
 
 class UClass;
+class ULevel;
 class UBlueprint;
 class UEdGraph;
 class UEdGraphNode;
 class UK2Node;
 class UBlueprintNodeSpawner;
 class FXmlFile;
+
+enum EMemberType
+{
+	Function,
+	Variable,
+	Delegate,
+	Enum,
+	Struct,
+};
 
 class FNodeDocsGenerator
 {
@@ -70,9 +80,11 @@ protected:
 	static FString GetClassDocId(UClass* Class);
 	static FString GetNodeDocId(UEdGraphNode* Node);
 	static UClass* MapToAssociatedClass(UK2Node* NodeInst, UObject* Source);
-	static bool IsSpawnerDocumentable(UBlueprintNodeSpawner* Spawner, bool bIsBlueprint);
+	
+	bool IsSpawnerDocumentable(UBlueprintNodeSpawner* Spawner, bool bIsBlueprint);
 
 protected:
+	TWeakObjectPtr< ULevel > DummyLevel;
 	TWeakObjectPtr< UBlueprint > DummyBP;
 	TWeakObjectPtr< UEdGraph > Graph;
 	TSharedPtr< class SGraphPanel > GraphPanel;

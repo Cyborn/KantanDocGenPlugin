@@ -29,6 +29,8 @@ void FContentPathEnumerator::Prepass(FName const& Path)
 	FARFilter Filter;
 	Filter.bRecursiveClasses = true;
 	Filter.ClassNames.Add(UBlueprint::StaticClass()->GetFName());
+	Filter.ClassNames.Add(UStruct::StaticClass()->GetFName());
+	Filter.ClassNames.Add(UEnum::StaticClass()->GetFName());
 	
 	// @TODO: Not sure about this, but for some reason was generating docs for 'AnimInstance' itself.
 	Filter.RecursiveClassesExclusionSet.Add(UAnimBlueprint::StaticClass()->GetFName());
@@ -41,18 +43,14 @@ UObject* FContentPathEnumerator::GetNext()
 {
 	UObject* Result = nullptr;
 
-	while(CurIndex < AssetList.Num())
+	if(CurIndex < AssetList.Num())
 	{
 		auto const& AssetData = AssetList[CurIndex];
 		++CurIndex;
 
-		if(auto Blueprint = Cast< UBlueprint >(AssetData.GetAsset()))
-		{
-			UE_LOG(LogKantanDocGen, Log, TEXT("Enumerating object '%s' at '%s'"), *Blueprint->GetName(), *AssetData.ObjectPath.ToString());
+		UE_LOG(LogKantanDocGen, Log, TEXT("Enumerating object '%s' at '%s'"), *AssetData.GetAsset()->GetName(), *AssetData.ObjectPath.ToString());
 
-			Result = Blueprint;
-			break;
-		}
+		Result = AssetData.GetAsset();
 	}
 	
 	return Result;
