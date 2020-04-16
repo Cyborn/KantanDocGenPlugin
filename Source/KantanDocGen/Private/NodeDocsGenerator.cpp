@@ -102,18 +102,16 @@ UK2Node* FNodeDocsGenerator::GT_InitializeForSpawner(UBlueprintNodeSpawner* Spaw
 	}
 
 	TSet< TWeakObjectPtr< UObject > > Bindings;
+	UObject* Source = nullptr;
 	if (UClass* SourceClass = MapToAssociatedClass(nullptr, SourceObject))
 	{	
-		UObject* Source = SourceClass->GetDefaultObject();
+		Source = SourceClass->GetDefaultObject();
 		if (!Source->GetTypedOuter<ULevel>())
 		{
-			UObject* NewSource = NewObject<UObject>(DummyLevel.Get(), SourceClass, NAME_None, RF_ClassDefaultObject | RF_Transient);
-			Bindings.Add(NewSource);
+			Source = NewObject<UObject>(DummyLevel.Get(), SourceClass, NAME_None, RF_ClassDefaultObject | RF_Transient);
 		}
-		else
-		{
-			Bindings.Add(Source);
-		}
+
+		Bindings.Add(Source);
 	}
 
 	// Spawn an instance into the graph
@@ -125,9 +123,15 @@ UK2Node* FNodeDocsGenerator::GT_InitializeForSpawner(UBlueprintNodeSpawner* Spaw
 	if(K2NodeInst == nullptr)
 	{
 		UE_LOG(LogKantanDocGen, Warning, TEXT("Failed to create node from spawner of class %s with node class %s."), *Spawner->GetClass()->GetName(), Spawner->NodeClass ? *Spawner->NodeClass->GetName() : TEXT("None"));
+		if (Source)
+		{
+			Source->ConditionalBeginDestroy();
+			Source = nullptr;
+		}
 		return nullptr;
 	}
 
+	NodeBindings.Add(TWeakObjectPtr<UK2Node>(K2NodeInst), TWeakObjectPtr<UObject>(Source));
 	auto AssociatedClass = MapToAssociatedClass(K2NodeInst, SourceObject);
 
 	// If no class is associated, we associate it ourselves.
@@ -723,6 +727,23 @@ bool FNodeDocsGenerator::GenerateNodeDocs(UK2Node* Node, FNodeProcessingState& S
 	}
 	
 	return true;
+}
+
+void FNodeDocsGenerator::CleanupNode(UK2Node* Node, FNodeProcessingState& State)
+{
+	if (NodeBindings.Contains(Node))
+	{
+		TWeakObjectPtr<UObject> Binding = NodeBindings.FindAndRemoveChecked(Node);
+		if (Binding.IsValid() && Binding->IsValidLowLevel())
+		{
+			Binding->ConditionalBeginDestroy();
+			Binding.Reset();
+		}
+	}
+	if (IsValid(Node))
+	{
+		Node->DestroyNode();
+	}
 }
 
 bool FNodeDocsGenerator::SaveIndexXml(FString const& OutDir)

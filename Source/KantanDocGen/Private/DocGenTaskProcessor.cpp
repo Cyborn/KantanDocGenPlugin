@@ -258,6 +258,9 @@ void FDocGenTaskProcessor::ProcessTask(TSharedPtr< FDocGenTask > InTask)
 					continue;
 				}
 
+				// We're done with this node now.
+				Current->DocGen->CleanupNode(NodeInst, NodeState);
+
 				++SuccessfulNodeCount;
 			}
 		}

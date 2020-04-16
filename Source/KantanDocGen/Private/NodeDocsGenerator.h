@@ -62,6 +62,7 @@ public:
 	/** Callable from background thread */
 	bool GenerateNodeImage(UEdGraphNode* Node, FNodeProcessingState& State);
 	bool GenerateNodeDocs(UK2Node* Node, FNodeProcessingState& State);
+	void CleanupNode(UK2Node* Node, FNodeProcessingState& State);
 	/**/
 
 protected:
@@ -86,6 +87,7 @@ protected:
 protected:
 	TWeakObjectPtr< ULevel > DummyLevel;
 	TWeakObjectPtr< UBlueprint > DummyBP;
+	TMap< TWeakObjectPtr<UK2Node>, TWeakObjectPtr<UObject>> NodeBindings;
 	TWeakObjectPtr< UEdGraph > Graph;
 	TSharedPtr< class SGraphPanel > GraphPanel;
 
