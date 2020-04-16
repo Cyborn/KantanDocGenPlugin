@@ -31,4 +31,16 @@ These are:
 Furthermore, the **ShortTooltip** meta tag is supported.</br>
 The `meta = (ShortTooltip = "")` to the UCLASS macro adds a short description that can be read in blueprints and in the index list of the documentation.
 
+```cpp
+/**
+ * The main pawn for VR gameplay.
+ * Contains all input handling and main gameplay components for movement and scene interaction.
+ * This pawn should never directly reference any game objects that aren't persistent.
+ * @SaveGame Ready
+ * @Refactor Ready
+**/
+UCLASS(meta = (ShortTooltip = "The main pawn for VR gameplay. Contains all components necessary for world interaction."))
+class HUBRISVR_API ABaseVRPawn : public ABasePawn, public IEMSActorSaveInterface
+```
+
 This plugin relies on [KantanDocGenTool](https://github.com/kamrann/KantanDocGenTool) for converting intermediate xml form into html. This is packaged inside the plugin so does not need to be installed separately.
