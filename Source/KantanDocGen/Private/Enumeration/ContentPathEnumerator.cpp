@@ -13,15 +13,16 @@
 
 
 FContentPathEnumerator::FContentPathEnumerator(
-	FName const& InPath
+	FName const& InPath,
+	TArray< FName > const& ExclNames
 )
 {
 	CurIndex = 0;
 
-	Prepass(InPath);
+	Prepass(InPath, ExclNames);
 }
 
-void FContentPathEnumerator::Prepass(FName const& Path)
+void FContentPathEnumerator::Prepass(FName const& Path, TArray< FName > const& ExclNames)
 {
 	auto& AssetRegistryModule = FModuleManager::GetModuleChecked< FAssetRegistryModule >("AssetRegistry");
 	auto& AssetRegistry = AssetRegistryModule.Get();
@@ -35,8 +36,13 @@ void FContentPathEnumerator::Prepass(FName const& Path)
 	// @TODO: Not sure about this, but for some reason was generating docs for 'AnimInstance' itself.
 	Filter.RecursiveClassesExclusionSet.Add(UAnimBlueprint::StaticClass()->GetFName());
 
+	FARFilter ExclFilter;
+	ExclFilter.bRecursivePaths = true;
+	ExclFilter.PackagePaths = ExclNames;
+	
 	AssetRegistry.GetAssetsByPath(Path, AssetList, true);
 	AssetRegistry.RunAssetsThroughFilter(AssetList, Filter);
+	AssetRegistry.UseFilterToExcludeAssets(AssetList, ExclFilter);
 }
 
 UObject* FContentPathEnumerator::GetNext()

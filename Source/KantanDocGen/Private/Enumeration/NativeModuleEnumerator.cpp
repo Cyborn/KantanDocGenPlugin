@@ -13,15 +13,16 @@
 
 
 FNativeModuleEnumerator::FNativeModuleEnumerator(
-	FName const& InModuleName
+	FName const& InModuleName,
+	TArray< FName > const& ExclNames
 )
 {
 	CurIndex = 0;
 
-	Prepass(InModuleName);
+	Prepass(InModuleName, ExclNames);
 }
 
-void FNativeModuleEnumerator::Prepass(FName const& ModuleName)
+void FNativeModuleEnumerator::Prepass(FName const& ModuleName, TArray< FName > const& ExclNames)
 {
 	// For native package, all classes are already loaded so it's no problem to fully enumerate during prepass.
 	// That way we have more info for progress estimation.

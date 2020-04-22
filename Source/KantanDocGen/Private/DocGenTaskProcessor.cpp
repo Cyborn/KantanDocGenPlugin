@@ -101,15 +101,20 @@ void FDocGenTaskProcessor::ProcessTask(TSharedPtr< FDocGenTask > InTask)
 	TFunction<void()> GameThread_EnqueueEnumerators = [this]()
 	{
 		// @TODO: Specific class enumerator
-		Current->Enumerators.Enqueue(MakeShareable< FCompositeEnumerator< FNativeModuleEnumerator > >(new FCompositeEnumerator< FNativeModuleEnumerator >(Current->Task->Settings.NativeModules)));
-		Current->Enumerators.Enqueue(MakeShareable< FCompositeEnumerator< FNativeEnumStructEnumerator > >(new FCompositeEnumerator< FNativeEnumStructEnumerator >(Current->Task->Settings.NativeModules)));
+		Current->Enumerators.Enqueue(MakeShareable< FCompositeEnumerator< FNativeModuleEnumerator > >(new FCompositeEnumerator< FNativeModuleEnumerator >(Current->Task->Settings.NativeModules, TArray<FName>())));
+		Current->Enumerators.Enqueue(MakeShareable< FCompositeEnumerator< FNativeEnumStructEnumerator > >(new FCompositeEnumerator< FNativeEnumStructEnumerator >(Current->Task->Settings.NativeModules, TArray<FName>())));
 
 		TArray< FName > ContentPackagePaths;
 		for (auto const& Path : Current->Task->Settings.ContentPaths)
 		{
 			ContentPackagePaths.AddUnique(FName(*Path.Path));
 		}
-		Current->Enumerators.Enqueue(MakeShareable< FCompositeEnumerator< FContentPathEnumerator > >(new FCompositeEnumerator< FContentPathEnumerator >(ContentPackagePaths)));
+		TArray< FName > ExclContentPackagePaths;
+		for (auto const& Path : Current->Task->Settings.ExcludedPaths)
+		{
+			ExclContentPackagePaths.AddUnique(FName(*Path.Path));
+		}
+		Current->Enumerators.Enqueue(MakeShareable< FCompositeEnumerator< FContentPathEnumerator > >(new FCompositeEnumerator< FContentPathEnumerator >(ContentPackagePaths, ExclContentPackagePaths)));
 	};
 
 	auto GameThread_EnumerateNextObject = [this]() -> bool
@@ -222,11 +227,6 @@ void FDocGenTaskProcessor::ProcessTask(TSharedPtr< FDocGenTask > InTask)
 	if(bCleanIntermediate)
 	{
 		IFileManager::Get().DeleteDirectory(*IntermediateDir, false, true);
-	}
-
-	for(auto const& Name : Current->Task->Settings.ExcludedClasses)
-	{
-		Current->Excluded.Add(Name);
 	}
 
 	int SuccessfulNodeCount = 0;

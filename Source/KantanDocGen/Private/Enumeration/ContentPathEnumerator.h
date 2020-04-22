@@ -14,7 +14,8 @@ class FContentPathEnumerator: public ISourceObjectEnumerator
 {
 public:
 	FContentPathEnumerator(
-		FName const& InPath
+		FName const& InPath, 
+		TArray< FName > const& ExclNames
 	);
 
 public:
@@ -23,7 +24,7 @@ public:
 	virtual int32 EstimatedSize() const override;
 
 protected:
-	void Prepass(FName const& Path);
+	void Prepass(FName const& Path, TArray< FName > const& ExclNames);
 
 protected:
 	TArray< FAssetData > AssetList;

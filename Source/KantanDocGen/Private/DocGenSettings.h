@@ -29,17 +29,12 @@ public:
 	TArray< FName > NativeModules;
 
 	/** List of paths in which to search for blueprints to document. */
-	UPROPERTY(EditAnywhere, Category = "Class Search", Meta = (ContentDir))//, Meta = (Tooltip = "Path to content subfolder, e.g. '/Game/MyFolder' or '/PluginName/MyFolder'."))
-	//TArray< FName > ContentPaths;
+	UPROPERTY(EditAnywhere, Category = "Class Search", Meta = (ContentDir))
 	TArray< FDirectoryPath > ContentPaths;
 
-	/** Names of specific classes/blueprints to document. */
-	UPROPERTY()//EditAnywhere, Category = "Class Search")
-	TArray< FName > SpecificClasses;
-
-	/** Names of specific classes/blueprints to exclude. */
-	UPROPERTY()//EditAnywhere, Category = "Class Search")
-	TArray< FName > ExcludedClasses;
+	/** List of paths from which to exclude all blueprints from documentation. */
+	UPROPERTY(EditAnywhere, Category = "Class Search", Meta = (ContentDir))
+	TArray< FDirectoryPath > ExcludedPaths;
 
 	UPROPERTY(EditAnywhere, Category = "Output")
 	FDirectoryPath OutputDirectory;
@@ -61,7 +56,6 @@ public:
 	{
 		return NativeModules.Num() > 0
 			|| ContentPaths.Num() > 0
-			|| SpecificClasses.Num() > 0
 			;
 	}
 };

@@ -48,7 +48,6 @@ protected:
 		TSharedPtr< FDocGenTask > Task;
 
 		TQueue< TSharedPtr< ISourceObjectEnumerator > > Enumerators;
-		TSet< FName > Excluded;
 		TSet< TWeakObjectPtr< UObject > > Processed;
 
 		TSharedPtr< ISourceObjectEnumerator > CurrentEnumerator;

@@ -14,14 +14,15 @@ class FCompositeEnumerator: public ISourceObjectEnumerator
 {
 public:
 	FCompositeEnumerator(
-		TArray< FName > const& InNames
+		TArray< FName > const& InNames,
+		TArray< FName > const& InExclNames
 	)
 	{
 		CurEnumIndex = 0;
 		TotalSize = 0;
 		Completed = 0;
 
-		Prepass(InNames);
+		Prepass(InNames, InExclNames);
 	}
 
 public:
@@ -63,11 +64,11 @@ public:
 	}
 
 protected:
-	void Prepass(TArray< FName > const& Names)
+	void Prepass(TArray< FName > const& Names, TArray< FName > const& ExclNames)
 	{
 		for(auto Name : Names)
 		{
-			auto Child = MakeUnique< TChildEnum >(Name);
+			auto Child = MakeUnique< TChildEnum >(Name, ExclNames);
 			TotalSize += Child->EstimatedSize();
 
 			ChildEnumList.Add(MoveTemp(Child));

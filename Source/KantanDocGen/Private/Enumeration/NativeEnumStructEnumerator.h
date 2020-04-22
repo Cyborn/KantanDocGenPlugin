@@ -13,7 +13,8 @@ class FNativeEnumStructEnumerator: public ISourceObjectEnumerator
 {
 public:
 	FNativeEnumStructEnumerator(
-		FName const& InModuleName
+		FName const& InModuleName,
+		TArray< FName > const& ExclNames
 	);
 
 public:
@@ -22,7 +23,7 @@ public:
 	virtual int32 EstimatedSize() const override;
 
 protected:
-	void Prepass(FName const& ModuleName);
+	void Prepass(FName const& ModuleName, TArray< FName > const& ExclNames);
 
 protected:
 	TArray< TWeakObjectPtr< UObject > > ObjectList;

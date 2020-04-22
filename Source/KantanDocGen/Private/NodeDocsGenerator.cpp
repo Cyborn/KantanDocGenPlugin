@@ -46,6 +46,7 @@
 #include "Stats/StatsMisc.h"
 #include "Runtime/ImageWriteQueue/Public/ImageWriteTask.h"
 #include "Engine/Engine.h"
+#include "Engine/UserDefinedEnum.h"
 
 FNodeDocsGenerator::~FNodeDocsGenerator()
 {
@@ -674,6 +675,23 @@ bool FNodeDocsGenerator::GenerateNodeDocs(UK2Node* Node, FNodeProcessingState& S
 	{
 		NodeDesc = NodeDesc.Left(TargetIdx).TrimEnd();
 	}
+	if (MemberType == Enum)
+	{
+		if (auto EnumNode = Cast<UK2Node_SwitchEnum>(Node))
+		{
+			if (UUserDefinedEnum* Enum = Cast<UUserDefinedEnum>(EnumNode->GetEnum()))
+			{
+				NodeDesc = Enum->EnumDescription.ToString();
+			}
+		}
+	}
+	else if (MemberType == Struct)
+	{
+		if (auto StructNode = Cast<UK2Node_BreakStruct>(Node))
+		{
+			NodeDesc = StructNode->StructType->GetToolTipText().ToString();
+		}
+	}
 	AppendChildCDATA(Root, TEXT("description"), NodeDesc);
 	AppendChildCDATA(Root, TEXT("imgpath"), State.RelImageBasePath / State.ImageFilename);
 	AppendChildCDATA(Root, TEXT("category"), Node->GetMenuCategory().ToString());
@@ -705,10 +723,27 @@ bool FNodeDocsGenerator::GenerateNodeDocs(UK2Node* Node, FNodeProcessingState& S
 			if(ShouldDocumentPin(Pin))
 			{
 				auto Output = AppendChild(Outputs, TEXT("param"));
-
 				FString PinName, PinType, PinDesc;
 				ExtractPinInformation(Pin, PinName, PinType, PinDesc);
 				PinType.RemoveSpacesInline();
+
+				if (MemberType == Enum)
+				{
+					if (auto EnumNode = Cast<UK2Node_SwitchEnum>(Node))
+					{
+						if (UUserDefinedEnum* Enum = Cast<UUserDefinedEnum>(EnumNode->GetEnum()))
+						{
+							int Index = Enum->GetIndexByNameString(PinName, EGetByNameFlags::CheckAuthoredName);
+							PinDesc = Enum->GetToolTipTextByIndex(Index).ToString();
+							if (PinDesc == "")
+							{
+								PinDesc = PinName;
+							}
+							
+						}
+					}
+				}
+
 				AppendChildCDATA(Output, TEXT("name"), PinName);
 				AppendChildCDATA(Output, TEXT("type"), PinType);
 				AppendChildCDATA(Output, TEXT("description"), PinDesc);
