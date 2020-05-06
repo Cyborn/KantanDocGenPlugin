@@ -47,6 +47,7 @@
 #include "Runtime/ImageWriteQueue/Public/ImageWriteTask.h"
 #include "Engine/Engine.h"
 #include "Engine/UserDefinedEnum.h"
+#include "ObjectEditorUtils.h"
 
 FNodeDocsGenerator::~FNodeDocsGenerator()
 {
@@ -546,6 +547,10 @@ bool FNodeDocsGenerator::GenerateNodeDocs(UK2Node* Node, FNodeProcessingState& S
 			{
 				AccessSpecifier = "Protected";
 			}
+			else if (Property->GetBoolMetaData(FBlueprintMetadata::MD_Private))
+			{
+				AccessSpecifier = "Private";
+			}
 			else
 			{
 				EPropertyFlags AccessSpecifierFlag = CPF_NativeAccessSpecifiers & Property->PropertyFlags;
@@ -694,7 +699,28 @@ bool FNodeDocsGenerator::GenerateNodeDocs(UK2Node* Node, FNodeProcessingState& S
 	}
 	AppendChildCDATA(Root, TEXT("description"), NodeDesc);
 	AppendChildCDATA(Root, TEXT("imgpath"), State.RelImageBasePath / State.ImageFilename);
-	AppendChildCDATA(Root, TEXT("category"), Node->GetMenuCategory().ToString());
+
+	FString Category = Node->GetMenuCategory().ToString();
+	if (MemberType == Variable)
+	{
+		if (auto VarNode = Cast< UK2Node_VariableGet>(Node))
+		{
+			if (auto Property = VarNode->GetPropertyForVariable())
+			{
+				Category = FObjectEditorUtils::GetCategory(Property);
+
+				if (Category.Equals(VarNode->GetBlueprint()->GetName()) || Category.Equals(UEdGraphSchema_K2::VR_DefaultCategory.ToString()))
+				{
+					UObjectPropertyBase* Obj = Cast<UObjectPropertyBase>(Property);
+					if (Obj && Obj->PropertyClass && Obj->PropertyClass->IsChildOf<UActorComponent>())
+					{
+						Category = "Components";
+					}
+				}
+			}
+		}
+	}
+	AppendChildCDATA(Root, TEXT("category"), Category);
 	
 	auto Inputs = AppendChild(Root, TEXT("inputs"));
 	for(auto Pin : Node->Pins)
