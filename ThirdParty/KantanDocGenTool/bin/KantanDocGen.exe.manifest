@@ -126,14 +126,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="KantanDocGen.exe" size="15360">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="KantanDocGen.exe" size="18944">
       <assemblyIdentity name="KantanDocGen" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>u/N6EreE9Vx9AiNRrpDMaDAf6ocUd/EaG0I2emBdS2U=</dsig:DigestValue>
+        <dsig:DigestValue>3tXNeKm1zfyFWTYYbTlavTr1JGU6dizsKh90mQQRkZM=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -170,22 +170,31 @@
       <dsig:DigestValue>JYh7+cvbyaaiF6arMKPpSYmaUNqwI2rNttwguAu+Ir8=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="DeploymentFiles\xslt\class_docs_xform.xsl" size="11545">
+  <file name="DeploymentFiles\xslt\class_docs_xform.xsl" size="18735">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>X9Gm+8zpGy4mAmeYbnt6BrE8Hq3DXRIoHwa1THGheMA=</dsig:DigestValue>
+      <dsig:DigestValue>H8Pv2GkgcZxDo/g3GhbH/fWnOEsz6m4LLFJkWIQE5sM=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="DeploymentFiles\xslt\index_xform.xsl" size="6593">
+  <file name="DeploymentFiles\xslt\enum_xform.xsl" size="2669">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>z/vxC0gK7T4RjCmUYaY2hrrkDTFW1wHRBQWU7dyWkaM=</dsig:DigestValue>
+      <dsig:DigestValue>V/rQ18gQL+K4ynfJRPQ1kRlsvwUyWHOSC1FE8TgQA/Y=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="DeploymentFiles\xslt\index_xform.xsl" size="15638">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>xWdJDGjN38thHKm8pphu0mW9NJbv4tRVpHf3xsXUQtk=</dsig:DigestValue>
     </hash>
   </file>
   <file name="DeploymentFiles\xslt\node_docs_xform.xsl" size="3957">
@@ -195,6 +204,15 @@
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
       <dsig:DigestValue>3rBEyrlKw8AgpTk7qm+ws7ADNbDQCLDTCBzMAolR7Dc=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="DeploymentFiles\xslt\struct_xform.xsl" size="2871">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>0exeQxQcTc3k0NB/2BXynYafVfLkBjr5tXe3OCddfJ0=</dsig:DigestValue>
     </hash>
   </file>
   <file name="KantanDocGen.exe.config" size="184">
